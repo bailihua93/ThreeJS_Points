@@ -5,8 +5,8 @@ $(function () {
 
     // console.log(WIDTH + ";" + HEIGHT);
     var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 100000);
-    camera.position.set(300, 300, 300);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    camera.position.set(500, 200, 500);
+    camera.lookAt(new THREE.Vector3(0, 200, 0));
     var scene = new THREE.Scene();
 
     var axis = new THREE.AxisHelper(500);
@@ -33,9 +33,7 @@ $(function () {
 
         for (var index = 0; index < 1000; index++) {
             geometry.vertices.push(new THREE.Vector3(
-                Math.floor(Math.random() * (-300) + 300),
-                Math.floor(Math.random() * (-300) + 300),
-                Math.floor(Math.random() * (-300) + 300)
+                Math.floor(Math.random() * (-300) + 300), 300, Math.floor(Math.random() * (-300) + 300)
             ));
         }
 
@@ -64,20 +62,44 @@ $(function () {
         }
     }
 
-    function pointsAnimation() {
-        pointsArray.geometry.vertices.forEach(function (p, i) {
-            p.set(
-                Math.floor(Math.random() * (-300) + 300),
-                Math.floor(Math.random() * (-300) + 300),
-                Math.floor(Math.random() * (-300) + 300)
-            );
-        });
+    var dstRadius = 300;
 
-        pointsArray.geometry.verticesNeedUpdate = true;
+    function pointsAnimation() {
+        // pointsArray.geometry.vertices.forEach(function (p, i) {
+        //     var x = p.x;
+        //     var y = p.y;
+        //     var z = p.z;
+
+        //     p.set(
+        //         Math.floor(x, y, z)
+        //     );
+        // });
+
+        // pointsArray.geometry.verticesNeedUpdate = true;
+
+        var tween = new TWEEN.Tween({ radius: 300 })
+            .to({ radius: 0 }, 5000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(function () {
+                var r = this.radius;
+                console.log(r);
+                pointsArray.geometry.vertices.forEach(function (p, i) {
+                    var x = p.x;
+                    var y = p.y <= 0 ? 300 : r;
+                    var z = p.z;
+                    p.set(x, y, z);
+                });
+
+                pointsArray.geometry.verticesNeedUpdate = true;
+            });
+        tween.start();
     }
 
+    pointsAnimation();
+
     function render() {
-        pointsAnimation();
+
+        TWEEN.update();
         requestAnimationFrame(render);
 
         webglRender.render(scene, camera);
